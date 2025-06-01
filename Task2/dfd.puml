@@ -1,0 +1,34 @@
+@startuml
+
+package "Домен головного офиса"  {
+  database "Персонал, ТМЦ" as MainDb
+}
+
+package "Домен клиники"  {
+  database "Мед. данные" as ClinicDb
+}
+
+package "Домен финтех"  {
+  database "Финансы" as FintechDb
+}
+
+package "Домен витрина данных"  {
+  database "DWH" as DataDWH
+}
+
+package "Домен шины"  {
+  rectangle "Интеграционная шина" as DataDomain
+}
+
+rectangle "Фармацевтических компаний" as Pharm
+rectangle "Компании по производству мед.оборудования." as Product
+
+
+MainDb <--> DataDomain : Бюджет. Персонал. ТМЦ.
+ClinicDb <--> DataDomain : Персонал. Счета на оплату, платежи.  
+FintechDb <--> DataDomain : Счета на оплату, платежи. Зарплата. 
+Pharm --> DataDomain : Производство и продажа лекарств. 
+Product --> DataDomain : Производство и продажа мед.оборудования.
+DataDomain --> DataDWH : Данные.
+
+@enduml.
