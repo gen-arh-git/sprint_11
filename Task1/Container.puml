@@ -1,0 +1,66 @@
+@startuml
+
+!include <C4/C4_Container>
+title Future 2.0 Container Diagram
+top to bottom direction
+
+Person(UserMain, "Сотрудик офиса", "Персонал, ТМЦ, Отчетность")
+Person(UserClinic, "Сотрудик клиники", "Клиенты, Медкарты")
+Person(UserFintech, "Сотрудик финтех", "Счета, Кредиты, Финансы")
+
+System_Boundary(Future, "Будущее 2.0") {
+
+	Container_Boundary(MainDomain, "Домен головного офиса") {
+		Container(MainUI, "UI головного офиса", "React/Angular")
+		ContainerDb(MainDb, "Офис база", "MS SQL")
+		Container(ServiceMain, "Внутренние сервисы", "Python/Docker")
+	}
+
+	Container_Boundary(ClinicDomian, "Домен клиники") {
+		Container(ClinicUI, "UI клиники", "React/Angular")
+		ContainerDb(ClinicDb, "Клиника база", "MS SQL")
+		Container(ServiceAI, "ИИ сервисы", "Python/Docker")
+	}
+
+	Container_Boundary(FintechDomain, "Домен финтех") {
+		Container(FintechUI, "UI Финтех", "Golang/Java")
+		ContainerDb(FintechDb, "Финтех база", "MS SQL")
+		Container(ServiceFintech, "Финтех сервисы", "Python/Docker")
+	}
+
+	Container_Boundary(DataDomain, "Домен хранилище данных") {
+		Container(Integration, "Интеграционная шина", "Kafka")
+	}
+
+	Container_Boundary(ShowDomain, "Домен витрина данных") {
+		Container(ShowCase, "Портал самообслуживания", "Power BI")
+		ContainerDb(DataDWH, "DWH", "Хранилище данных", "MS SQL")
+	}
+}
+
+System_Ext(Bank, "Клиент Банк", "Инеграция с банком")
+
+Rel(UserMain, MainUI, "Внутренные данные, управление клиниками и тд")
+Rel(UserClinic, ClinicUI, "Медицинские данны")
+Rel(UserFintech, FintechUI, "Финансовые данные")
+
+Rel(MainUI, MainDb, "")
+Rel(ClinicUI, ClinicDb, "")
+Rel(FintechUI, FintechDb, "")
+
+Rel(MainDb, ServiceMain, "Внутренные данные, управление клиниками и тд")
+Rel(ServiceMain, Integration, "Внутренные данные, управление клиниками и тд")
+Rel(ClinicDb, ServiceAI, "Медицинские данные")
+Rel(ServiceAI, Integration, "Медицинские данные")
+
+Rel(FintechDb, ServiceFintech, "Финансовые данные")
+Rel(ServiceFintech, Bank, "Выписки")
+Rel(ServiceFintech, Integration, "Финансовые данные")
+
+Rel(MainUI, DataDWH, "Запрашивает данные", "")
+Rel(ShowCase, DataDWH, "Генерирует отчеты", "")
+Rel(DataDWH, Integration, "Публикует данные", "")
+Rel(DataDWH, ServiceAI, "Предоставляет данные", "")
+Rel(Integration, DataDWH, "Синхронизирует данные", "")
+
+@enduml.
