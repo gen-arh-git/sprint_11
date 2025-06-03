@@ -19,6 +19,7 @@ System_Boundary(Future, "Будущее 2.0") {
 	Container_Boundary(ClinicDomian, "Домен клиники") {
 		Container(ClinicUI, "UI клиники", "React/Angular")
 		ContainerDb(ClinicDb, "Клиника база", "MS SQL")
+		ContainerDb(DbS3, "Мед.анализы", "Snowflake /S3")
 		Container(ServiceAI, "ИИ сервисы", "Python/Docker")
 	}
 
@@ -29,12 +30,13 @@ System_Boundary(Future, "Будущее 2.0") {
 	}
 
 	Container_Boundary(DataDomain, "Домен хранилище данных") {
-		Container(Integration, "Интеграционная шина", "Kafka")
+		Container(Integration, "Интеграционная шина", "")
+		Container(Kafka, "Kafka", "Kafka")
+		ContainerDb(DataDWH, "DWH", "Хранилище данных", "MS SQL")
 	}
 
 	Container_Boundary(ShowDomain, "Домен витрина данных") {
 		Container(ShowCase, "Портал самообслуживания", "Power BI")
-		ContainerDb(DataDWH, "DWH", "Хранилище данных", "MS SQL")
 	}
 }
 
@@ -46,21 +48,25 @@ Rel(UserFintech, FintechUI, "Финансовые данные")
 
 Rel(MainUI, MainDb, "")
 Rel(ClinicUI, ClinicDb, "")
+Rel(ClinicUI, DbS3, "")
 Rel(FintechUI, FintechDb, "")
 
 Rel(MainDb, ServiceMain, "Внутренные данные, управление клиниками и тд")
-Rel(ServiceMain, Integration, "Внутренные данные, управление клиниками и тд")
+Rel(ServiceMain, Kafka, "Внутренные данные, управление клиниками и тд")
 Rel(ClinicDb, ServiceAI, "Медицинские данные")
-Rel(ServiceAI, Integration, "Медицинские данные")
+Rel(DbS3, ServiceAI, "Медицинские данные")
+Rel(ServiceAI, Kafka, "Медицинские данные")
+Rel(Integration, Kafka, "Синхронизирует данные")
+Rel(Kafka, Integration, "Публикует данные")
 
 Rel(FintechDb, ServiceFintech, "Финансовые данные")
 Rel(ServiceFintech, Bank, "Выписки")
-Rel(ServiceFintech, Integration, "Финансовые данные")
+Rel(ServiceFintech, Kafka, "Финансовые данные")
 
-Rel(MainUI, DataDWH, "Запрашивает данные", "")
 Rel(ShowCase, DataDWH, "Генерирует отчеты", "")
 Rel(DataDWH, Integration, "Публикует данные", "")
-Rel(DataDWH, ServiceAI, "Предоставляет данные", "")
+Rel(Kafka, ServiceAI, "Предоставляет данные", "")
+Rel(Kafka, ServiceMain, "Предоставляет данные", "")
 Rel(Integration, DataDWH, "Синхронизирует данные", "")
 
 @enduml.
